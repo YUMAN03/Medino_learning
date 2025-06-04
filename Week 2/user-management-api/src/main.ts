@@ -15,13 +15,13 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('User Management API')
+    .setTitle('User and Task Management API')
     .setDescription('API for managing users in memory')
     .setVersion('1.0')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document); // Swagger at localhost:3000/api
+  SwaggerModule.setup('api', app, document); 
 
   await app.listen(3000);
 }
