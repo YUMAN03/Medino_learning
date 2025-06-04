@@ -6,17 +6,14 @@ import { Request, Response, NextFunction } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  // Global validation pipe
+  
   app.useGlobalPipes(new ValidationPipe());
 
-  // Simple logging middleware
   app.use((req: Request, res: Response, next: NextFunction) => {
     Logger.log(`${req.method} ${req.url}`, 'Request');
     next();
   });
 
-  // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('User Management API')
     .setDescription('API for managing users in memory')
