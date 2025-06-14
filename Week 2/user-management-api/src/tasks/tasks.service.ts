@@ -1,43 +1,36 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { Task } from './dto/dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class TasksService {
-  private tasks: Task[] = [];
-  private nextId=1;
+  constructor(private prisma: PrismaService) {}
 
-  create(dto: CreateTaskDto): Task {
-    const newtask: Task={
-        id:this.nextId++,
-        ...dto
-
-    }
-    this.tasks.push(newtask);
-    return newtask;
+  async create(dto: CreateTaskDto, userId: number) {
+    console.log(userId);
+    return await this.prisma.task.create({ data: { ...dto, userId } });
   }
 
-  findAll(): Task[] {
-    return this.tasks;
+  findAll(userId: number) {
+    return this.prisma.task.findMany({ where: { userId } });
   }
 
-  findOne(id: number): Task {
-    const task = this.tasks.find(u => u.id === id);
+  async findOne(id: number) {
+    const task = await this.prisma.task.findUnique({ where: { id } });
     if (!task) throw new NotFoundException('Task not found');
     return task;
   }
 
-  update(id: number, dto: UpdateTaskDto): Task {
-    const task= this.findOne(id);
-    Object.assign(task, dto);
-    return task;
+  update(id: number, dto: UpdateTaskDto) {
+    return this.prisma.task.update({ where: { id }, data: dto });
   }
 
-  remove(id: number): { message: string } {
-    const index = this.tasks.findIndex(u => u.id === id);
-    if (index === -1) throw new NotFoundException('User not found');
-    this.tasks.splice(index, 1);
-    return { message: 'Task removed' };
+  remove(id: number) {
+    return this.prisma.task.delete({ where: { id } });
+  }
+
+  getComments(taskId: number) {
+    return this.prisma.comment.findMany({ where: { taskId } });
   }
 }

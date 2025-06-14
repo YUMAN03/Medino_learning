@@ -1,42 +1,49 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './interfaces/users.interface';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [];
-  private nextId = 1;
+  constructor(private prisma: PrismaService) {}
 
-  create(dto: CreateUserDto): User {
-    const newUser: User = {
-      id: this.nextId++,
-      ...dto,
-    };
-    this.users.push(newUser);
-    return newUser;
+  async findAll() {
+    return await this.prisma.user.findMany({
+      select: { id: true, name: true, email: true },
+    });
   }
 
-  findAll(): User[] {
-    return this.users;
-  }
-
-  findOne(id: number): User {
-    const user = this.users.find(u => u.id === id);
+  async findOne(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true, name: true, email: true },
+    });
     if (!user) throw new NotFoundException('User not found');
     return user;
   }
 
-  update(id: number, dto: UpdateUserDto): User {
-    const user = this.findOne(id);
-    Object.assign(user, dto);
-    return user;
+  async findUserTasks(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { tasks: true },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    return user.tasks;
   }
 
-  remove(id: number): { message: string } {
-    const index = this.users.findIndex(u => u.id === id);
-    if (index === -1) throw new NotFoundException('User not found');
-    this.users.splice(index, 1);
-    return { message: 'User removed' };
+  async findUserProjects(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { projects: true },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    return user.projects;
+  }
+
+  async findUserComments(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { comments: true },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    return user.comments;
   }
 }

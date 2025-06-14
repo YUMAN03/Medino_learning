@@ -6,8 +6,8 @@ import { Request, Response, NextFunction } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  app.useGlobalPipes(new ValidationPipe());
+
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     Logger.log(`${req.method} ${req.url}`, 'Request');
@@ -15,13 +15,14 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('User and Task Management API')
-    .setDescription('API for managing users in memory')
+    .setTitle('Project Task Comment API')
+    .setDescription('API for managing users, projects, tasks, and comments using Prisma and JWT auth.')
     .setVersion('1.0')
+    .addBearerAuth() // Enables JWT auth in Swagger UI
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document); 
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(3000);
 }

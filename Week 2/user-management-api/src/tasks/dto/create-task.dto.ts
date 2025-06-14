@@ -1,18 +1,15 @@
-import { IsEnum, IsString, IsNumber } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsInt } from 'class-validator';
 
-enum Status {
-  Pending = 'pending',
-  In_progress = 'in_progress',
-  Done = 'done',
-}
-
-export class CreateTaskDto {  
+export class CreateTaskDto {
   @IsString()
   title: string;
+
   @IsString()
   description: string;
-  @ApiProperty({enum: Status})
-  @IsEnum(Status)
-  status: Status;
+
+  @IsString()
+  status: string;
+
+  @IsInt()
+  projectId: number;
 }
